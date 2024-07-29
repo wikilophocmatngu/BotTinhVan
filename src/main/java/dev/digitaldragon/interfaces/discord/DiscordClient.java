@@ -61,20 +61,24 @@ public class DiscordClient {
         }
 
         instance.updateCommands().addCommands(
-                Commands.slash("mediawiki_dump", "Dump a MediaWiki site with wikiteam3")
+                Commands.slash("mediawiki_dump", "Dựng bản kết xuất MediaWiki")
                         // We will only include the following common options here: URL, explain, API, Index, Images, XML, XMLApiExport, XMLRevisions, Delay, Force, BypassCDNImageCompression, and .
-                        .addOption(OptionType.STRING, "url", "The URL of the wiki to dump", false)
-                        .addOption(OptionType.STRING, "explain", "Note about job displayed in /status.", false)
-                        .addOption(OptionType.STRING, "api", "The API URL of the wiki to dump", false)
-                        .addOption(OptionType.STRING, "index", "The index URL of the wiki to dump", false)
-                        .addOption(OptionType.BOOLEAN, "images", "Whether to download images", false)
-                        .addOption(OptionType.BOOLEAN, "xml", "Whether to download XML", false)
-                        .addOption(OptionType.BOOLEAN, "xmlapiexport", "Download XML via the MediaWiki API", false)
-                        .addOption(OptionType.BOOLEAN, "xmlrevisions", "Download XML via the MediaWiki revisions API", false)
-                        .addOption(OptionType.NUMBER, "delay", "Delay between requests", false)
-                        .addOption(OptionType.BOOLEAN, "force", "Ignore recent dump protections", false)
-                        .addOption(OptionType.BOOLEAN, "bypass-cdn-image-compression", "Bypass CDN image compression.", false)
-                        .addOption(OptionType.STRING, "extra-args", "Passes these command-line arguments in addition to other provided values.", false),
+                        .addOptions(
+                            new OptionData(OptionType.STRING, "url", "Dự án bạn muốn tạo kết xuất")
+                                 .addChoice("Wiki Lớp Học Mật Ngữ", "https://lophocmatngu.wiki")
+                                 .addChoice("Mật Ngữ Database \(MNDB\)", "https://mndb.lophocmatngu.wiki")
+                         )
+                        .addOption(OptionType.STRING, "explain", "Ghi chú thêm về tác vụ có thể hiển thị qua /status.", false)
+                        .addOption(OptionType.STRING, "api", "Liên kết API của wiki bạn muốn tạo kết xuất", false)
+                        .addOption(OptionType.STRING, "index", "Liên kết tới index.php của wiki bạn muốn tạo kết xuất", false)
+                        .addOption(OptionType.BOOLEAN, "images", "Tải hình ảnh xuống?", false)
+                        .addOption(OptionType.BOOLEAN, "xml", "Tải kết xuất XML?", false)
+                        .addOption(OptionType.BOOLEAN, "xmlapiexport", "Tạo XML qua API của MediaWiki", false)
+                        .addOption(OptionType.BOOLEAN, "xmlrevisions", "Tạo XML qua API phiên bản của MediaWiki", false)
+                        .addOption(OptionType.NUMBER, "delay", "Khoảng chờ giữa mỗi yêu cầu", false)
+                        .addOption(OptionType.BOOLEAN, "force", "Bỏ qua yêu cầu thời gian chờ mỗi lần kết xuất?", false)
+                        .addOption(OptionType.BOOLEAN, "bypass-cdn-image-compression", "Bỏ qua tính năng nén hình ảnh từ CDN.", false)
+                        .addOption(OptionType.STRING, "extra-args", "Thêm biến và giá trị tùy chỉnh vào đây.", false),
                 Commands.slash("dokuwiki_dump", "Dump a DokuWiki site with dokuwiki-dumper")
                 // Only includes url, explain, auto, ignore-disposition-header-missing
                         .addOption(OptionType.STRING, "url", "The URL of the wiki to dump", false)
@@ -89,11 +93,11 @@ public class DiscordClient {
                         .addOption(OptionType.BOOLEAN, "ignore-action-disabled-edit", "Ignore disabled edit actions", false)
                         .addOption(OptionType.STRING, "explain", "Note about job displayed in /status.", false)
                         .addOption(OptionType.STRING, "extra-args", "Passes these command-line arguments in addition to other provided values.", false),
-                Commands.slash("help", "Get help with using the bot"),
-                Commands.slash("status", "Get the status of a job")
-                        .addOption(OptionType.STRING, "job", "The ID of the job to get the status of", true),
-                Commands.slash("abort", "Abort a job")
-                        .addOption(OptionType.STRING, "job", "The ID of the job to abort", true)
+                Commands.slash("help", "Em cần trợ giúp sao?"),
+                Commands.slash("status", "Theo dõi tác vụ tạo kết xuất")
+                        .addOption(OptionType.STRING, "job", "ID tác vụ cần theo dõi", true),
+                Commands.slash("abort", "Hủy bỏ tác vụ")
+                        .addOption(OptionType.STRING, "job", "ID tác vụ muốn hủy bỏ", true)
 
         ).queue();
 
@@ -116,23 +120,23 @@ public class DiscordClient {
         EmbedBuilder builder = new EmbedBuilder();
         JobMeta meta = job.getMeta();
 
-        builder.setTitle(meta.getTargetUrl().orElse("Job"), meta.getTargetUrl().orElse(null));
+        builder.setTitle(meta.getTargetUrl().orElse("Tác vụ"), meta.getTargetUrl().orElse(null));
 
-        builder.addField("User", meta.getUserName(), true);
-        builder.addField("Job ID", "`" +  job.getId() + "`", true);
-        builder.addField("Type", job.getType().name(), true);
+        builder.addField("Người dùng", meta.getUserName(), true);
+        builder.addField("ID tác vụ", "`" +  job.getId() + "`", true);
+        builder.addField("Loại", job.getType().name(), true);
         String quickLinks = "";
 
         if (job.getStatus() == JobStatus.QUEUED || job.getStatus() == JobStatus.RUNNING) {
             //
         }
         else if (job.getStatus() == JobStatus.FAILED || job.getStatus() == JobStatus.ABORTED) {
-            builder.setDescription("<:failed:1214681282626326528> Failed");
+            builder.setDescription("<:failed:1214681282626326528> Thất bại");
             builder.setColor(Color.RED);
-            builder.addField("Failed Task", String.format("`%s` (Exit Code `%s`)", job.getRunningTask(), job.getFailedTaskCode()), true);
+            builder.addField("Tác vụ thất bại!", String.format("`%s` (Mã thoát `%s`)", job.getRunningTask(), job.getFailedTaskCode()), true);
         }
         else if (job.getStatus() == JobStatus.COMPLETED) {
-            builder.setDescription("<:done:1214681284778000504> Done!");
+            builder.setDescription("<:done:1214681284778000504> XONG!");
             builder.setColor(Color.GREEN);
         }
 
@@ -144,39 +148,39 @@ public class DiscordClient {
         }
 
         if (!quickLinks.isEmpty()) {
-            builder.addField("Quick Links", quickLinks, true);
+            builder.addField("Liên kết nhanh", quickLinks, true);
         }
 
 
         switch (job.getStatus()) {
             case QUEUED:
-                builder.setDescription("<:inprogress:1214681283771375706> In queue...");
+                builder.setDescription("<:inprogress:1214681283771375706> Chờ thực thi...");
                 builder.setColor(Color.YELLOW);
                 break;
             case RUNNING:
-                builder.setDescription("<:inprogress:1214681283771375706> Running...");
+                builder.setDescription("<:inprogress:1214681283771375706> Đang thực thi...");
                 builder.setColor(Color.YELLOW);
-                builder.addField("Task", job.getRunningTask() == null ? "Unknown" : job.getRunningTask(), true);
+                builder.addField("Task", job.getRunningTask() == null ? "Không rõ" : job.getRunningTask(), true);
                 break;
             case FAILED:
-                builder.setDescription("<:failed:1214681282626326528> Failed");
+                builder.setDescription("<:failed:1214681282626326528> Thất bại");
                 builder.setColor(Color.RED);
                 if (job.getFailedTaskCode() == 88) {
-                    builder.setDescription("<:inprogress:1214681283771375706> Cancelled\n\n**This job was automatically aborted because a dump of this wiki was made less than a year ago!**\nIf you still need a new dump, you should run the command again with `Force` set to `true`.");
+                    builder.setDescription("<:inprogress:1214681283771375706> Đã bị hủy bỏ\n\n**Công việc này đã tự động bị hủy bỏ vì wiki này đã tạo bản kết xuất cuối chưa đầy một năm trước!**\nChạy lệnh thực thi một lần nữa với giá trị `Force` là `true` nếu vẫn muốn thực thi tác vụ này.");
                     builder.setColor(Color.YELLOW);
                 }
                 break;
             case ABORTED:
-                builder.setDescription("<:failed:1214681282626326528> Aborted");
+                builder.setDescription("<:failed:1214681282626326528> Đã hủy bỏ");
                 builder.setColor(Color.ORANGE);
                 break;
             case COMPLETED:
-                builder.setDescription("<:done:1214681284778000504> Done!");
+                builder.setDescription("<:done:1214681284778000504> XONG!");
                 builder.setColor(Color.GREEN);
                 break;
         }
         if (meta.getExplain().isPresent()) {
-            builder.addField("Explanation", meta.getExplain().get(), false);
+            builder.addField("Giải thích", meta.getExplain().get(), false);
         }
         return builder;
     }
@@ -187,36 +191,36 @@ public class DiscordClient {
     }
 
     public static Button getAbortButton(Job job) {
-        return Button.danger("abort_" + job.getId(), "Abort")
+        return Button.danger("abort_" + job.getId(), "Hủy bỏ")
                 .withEmoji(Emoji.fromUnicode("✖"))
                 .withDisabled(!(job.getStatus() == JobStatus.QUEUED || job.getStatus() == JobStatus.RUNNING));
     }
 
     public static Button getStatusButton(Job job) {
-        return Button.secondary("status_" + job.getId(), "Info")
+        return Button.secondary("status_" + job.getId(), "Chi tiết")
                 .withEmoji(Emoji.fromUnicode("ℹ️"));
     }
 
     public static Button getLogsButton(Job job) {
         if (job.getLogsUrl() == null) {
-            return Button.secondary("logs_" + job.getId(), "Logs")
+            return Button.secondary("logs_" + job.getId(), "Nhật trình")
                     //.withUrl("about:blank")
                     .withEmoji(Emoji.fromUnicode("📄"))
                     .withDisabled(true);
         }
-        return Button.secondary("logs_" + job.getId(), "Logs")
+        return Button.secondary("logs_" + job.getId(), "Nhật trình")
                 .withEmoji(Emoji.fromUnicode("📄"))
                 .withUrl(job.getLogsUrl());
     }
 
     public static Button getArchiveButton(Job job) {
         if (job.getArchiveUrl() == null) {
-            return Button.secondary("archive_" + job.getId(), "Archive")
+            return Button.secondary("archive_" + job.getId(), "Bản lưu")
                     //.withUrl("about:blank")
                     .withEmoji(Emoji.fromUnicode("📁"))
                     .withDisabled(true);
         }
-        return Button.secondary("archive_" + job.getId(), "Archive")
+        return Button.secondary("archive_" + job.getId(), "Bản lưu")
                 .withEmoji(Emoji.fromUnicode("📁"))
                 .withUrl(job.getArchiveUrl());
     }
@@ -230,7 +234,7 @@ public class DiscordClient {
                     return Optional.of(user);
                 }
             } catch (RuntimeException e) {
-                LoggerFactory.getLogger(DiscordClient.class).error("Failed to get user by ID", e);
+                LoggerFactory.getLogger(DiscordClient.class).error("Không tra được thông tin người dùng qua ID", e);
             }
         }
         return Optional.empty();
