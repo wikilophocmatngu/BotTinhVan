@@ -39,9 +39,9 @@ public class DiscordJobListener {
     private void onJobEnd(Job job) {
         JobMeta meta = job.getMeta();
         String message = switch (job.getStatus()) {
-            case COMPLETED -> "Job ended.";
-            case FAILED -> "Job failed.";
-            case ABORTED -> "Job aborted.";
+            case COMPLETED -> "Tác vụ hoàn tất.";
+            case FAILED -> "Tác vụ thất bại.";
+            case ABORTED -> "Tác vụ bị hủy bỏ.";
             default -> "";
         };
 
@@ -61,7 +61,7 @@ public class DiscordJobListener {
             try {
                 user.ifPresent(value -> channels.add(value.openPrivateChannel().complete()));
             } catch (RuntimeException e) {
-                LoggerFactory.getLogger(DiscordJobListener.class).error("Failed to open private channel with user " + meta.getDiscordUserId().get(), e);
+                LoggerFactory.getLogger(DiscordJobListener.class).error("Không mở được đường trò chuyện riêng tư cho " + meta.getDiscordUserId().get(), e);
 
             }
 
@@ -104,7 +104,7 @@ public class DiscordJobListener {
         JDA instance = WikiBot.getDiscordClient().getInstance();
         TextChannel channel = instance.getTextChannelById(WikiBot.getConfig().getDiscordConfig().channelId());
         if (channel == null) {
-            LoggerFactory.getLogger(DiscordJobListener.class).error("Failed to access Discord channel " + WikiBot.getConfig().getDiscordConfig().channelId());
+            LoggerFactory.getLogger(DiscordJobListener.class).error("Không thể truy cập kênh" + WikiBot.getConfig().getDiscordConfig().channelId());
             return;
         }
 
@@ -140,7 +140,7 @@ public class DiscordJobListener {
             jobChannels.get(job.getId()).sendMessage("```" + message + "```").queue();
             jobLogs.put(job.getId(), "");
         } catch (Exception e) {
-            LoggerFactory.getLogger(DiscordJobListener.class).error("Failed to send logs to Discord channel for job " + job.getId(), e);
+            LoggerFactory.getLogger(DiscordJobListener.class).error("Không thể gửi nhật trình vào kênh Discord cho tác vụ " + job.getId(), e);
         }
 
     }
