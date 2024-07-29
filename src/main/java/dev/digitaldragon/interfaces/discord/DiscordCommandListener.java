@@ -35,10 +35,12 @@ public class DiscordCommandListener extends ListenerAdapter {
             "407534772542242816", // Miraheze: Stewards
             "407534909746577418", // Miraheze: MediaWiki Engineers
             "1112838174071324744", // !digiserver: wikibot
+            "1134305884172980266", // !wlhmn: BaoQuanVien
     };
 
     private static final String[] PERMITTED_USERS = {
             "287696585142304769", // digitaldragon
+            "663741516971507772", // Song Ngư
     };
 
     @Override
