@@ -27,7 +27,7 @@ public class DiscordButtonListener extends ListenerAdapter {
         if (job.abort()) {
             event.reply("Job aborted").addEmbeds(DiscordClient.getStatusEmbed(job).build()).setEphemeral(true).queue();
         } else {
-            event.reply("Failed to abort job! It may already be completed, or be in a task that can't be aborted.").addEmbeds(DiscordClient.getStatusEmbed(job).build()).setEphemeral(true).queue();
+            event.reply("Không thể hủy bỏ tác vụ! Nó có thể đã được hoàn thành hoặc đang trong một nhiệm vụ không thể hủy bỏ.").addEmbeds(DiscordClient.getStatusEmbed(job).build()).setEphemeral(true).queue();
         }
 
     }
@@ -39,7 +39,7 @@ public class DiscordButtonListener extends ListenerAdapter {
         //get job from id
         Job job = JobManager.get(jobId);
         if (job == null) {
-            event.reply("Job not found").setEphemeral(true).queue();
+            event.reply("Không tìm thấy tác vụ").setEphemeral(true).queue();
             return;
         }
         event.replyEmbeds(DiscordClient.getStatusEmbed(job).build()).addActionRow(DiscordClient.getJobActionRow(job)).setEphemeral(true).queue();
